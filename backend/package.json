@@ -1,0 +1,19 @@
+{
+  "name": "gmail-clone-backend",
+  "version": "1.0.0",
+  "description": "AWS Amplify backend for Gmail Clone",
+  "scripts": {
+    "amplify:init": "amplify init",
+    "amplify:push": "amplify push --yes",
+    "amplify:pull": "amplify pull",
+    "amplify:status": "amplify status",
+    "amplify:console": "amplify console"
+  },
+  "dependencies": {
+    "@aws-amplify/backend": "^1.0.0",
+    "@aws-amplify/backend-cli": "^1.0.0"
+  },
+  "devDependencies": {
+    "@aws-amplify/cli": "^12.0.0"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "emailSender",
+  "version": "2.0.0",
+  "description": "Lambda function to send emails via SES",
+  "main": "src/index.js",
+  "dependencies": {
+    "aws-sdk": "^2.1400.0"
+  }
+}

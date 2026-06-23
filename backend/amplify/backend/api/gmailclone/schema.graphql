@@ -1,0 +1,57 @@
+type Email @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  from: String!
+  to: [String!]!
+  cc: [String]
+  bcc: [String]
+  subject: String!
+  body: String!
+  bodyText: String
+  isRead: Boolean! @default(value: "false")
+  isStarred: Boolean! @default(value: "false")
+  isImportant: Boolean! @default(value: "false")
+  isDraft: Boolean! @default(value: "false")
+  isTrashed: Boolean! @default(value: "false")
+  folder: EmailFolder! @default(value: "INBOX")
+  labels: [String]
+  threadId: String
+  attachments: [Attachment]
+  sentAt: AWSDateTime!
+  owner: String
+}
+
+type Attachment @embeddedType {
+  filename: String!
+  contentType: String!
+  size: Int!
+  key: String!
+}
+
+enum EmailFolder {
+  INBOX
+  SENT
+  DRAFTS
+  TRASH
+  SPAM
+  STARRED
+}
+
+type Label @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  name: String!
+  color: String!
+  owner: String
+}
+
+type Thread @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  subject: String!
+  participants: [String!]!
+  lastEmailAt: AWSDateTime!
+  emailCount: Int! @default(value: "1")
+  isRead: Boolean! @default(value: "false")
+  isStarred: Boolean! @default(value: "false")
+  folder: EmailFolder! @default(value: "INBOX")
+  snippet: String
+  owner: String
+}

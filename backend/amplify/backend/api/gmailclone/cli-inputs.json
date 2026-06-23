@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "apiName": "gmailclone",
+    "defaultAuthType": {
+      "mode": "AMAZON_COGNITO_USER_POOLS"
+    },
+    "additionalAuthTypes": [
+      {
+        "mode": "API_KEY",
+        "expirationTime": 365
+      }
+    ],
+    "conflictResolution": {
+      "defaultResolutionStrategy": {
+        "type": "AUTO_MERGE"
+      }
+    },
+    "gqlSchemaPath": "/backend/amplify/backend/api/gmailclone/schema.graphql",
+    "serviceType": "graphql"
+  }
+}

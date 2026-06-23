@@ -1,0 +1,35 @@
+{
+  "api": {
+    "gmailclone": {
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "gmailcloneauth",
+          "attributes": ["UserPoolId", "AppClientIDWeb"]
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "AppSync"
+    }
+  },
+  "auth": {
+    "gmailcloneauth": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito"
+    }
+  },
+  "storage": {
+    "gmailclones3": {
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "gmailcloneauth",
+          "attributes": ["UserPoolId", "AppClientIDWeb"]
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "S3"
+    }
+  }
+}
