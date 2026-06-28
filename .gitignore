@@ -1,11 +1,12 @@
 # Dependencies
 frontend/node_modules/
 backend/node_modules/
+node_modules/
 
 # Build output
 frontend/build/
 
-# Amplify
+# Amplify Gen 1 (legacy)
 backend/amplify/#current-cloud-backend
 backend/amplify/.config/local-*
 backend/amplify/logs
@@ -17,6 +18,10 @@ backend/amplify/team-provider-info.json
 backend/build/
 backend/dist/
 .amplify-hosting
+
+# Amplify Gen 2 — generated at build time, do not commit root-level outputs
+amplify_outputs.json
+# (frontend/src/amplify_outputs.json IS committed as a placeholder)
 
 # Env
 .env

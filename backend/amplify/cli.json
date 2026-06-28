@@ -6,7 +6,6 @@
       "validatetypenamereservedwords": true,
       "useexperimentalpipelinedtransformer": true,
       "enableiterativegsiupdates": true,
-      "secondarykeyasdsi": true,
       "skipoverridemutationinputtypes": true,
       "transformerversion": 2,
       "suppressschemamigrationprompt": true,
@@ -25,15 +24,13 @@
       "enablecaseinsensitivity": true,
       "useinclusiveterminology": true,
       "breakcirculardependency": true,
-      "forcealiasedapis": false,
-      "generateconfig": true
+      "forcealiasedapis": false
     },
     "codegen": {
       "useappsyncmodelgenplugin": true,
       "usedocumentnodescodegen": false,
       "usetypescriptforcodegen": false,
       "generateindexrules": true,
-      "enabledartversioncheck": true,
       "generatemodelsforlazyloadandcustomselectionset": true
     },
     "appsync": {
@@ -50,5 +47,8 @@
     "project": {
       "overrides": true
     }
+  },
+  "debug": {
+    "shareProjectConfig": false
   }
 }

@@ -1,0 +1,16 @@
+{
+  "name": "kmail",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "sandbox": "npx ampx sandbox",
+    "generate-outputs": "npx ampx generate outputs --branch main --app-id YOUR_APP_ID"
+  },
+  "devDependencies": {
+    "@aws-amplify/backend": "^1.0.0",
+    "@aws-amplify/backend-cli": "^1.0.0",
+    "typescript": "^5.0.0",
+    "tsx": "^4.0.0",
+    "esbuild": "^0.23.0"
+  }
+}

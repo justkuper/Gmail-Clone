@@ -1,15 +1,5 @@
 {
   "dev": {
-    "awscloudformation": {
-      "AuthRoleName": "gmailclone-dev-AuthRole",
-      "UnauthRoleName": "gmailclone-dev-UnauthRole",
-      "AuthRoleArn": "",
-      "UnauthRoleArn": "",
-      "Region": "us-east-1",
-      "DeploymentBucketName": "",
-      "StackName": "amplify-gmailclone-dev",
-      "StackId": "",
-      "AmplifyAppId": ""
-    }
+    "awscloudformation": {}
   }
 }

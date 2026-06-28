@@ -1,8 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { generateClient } from 'aws-amplify/api';
-import { listEmails } from '../graphql/queries';
-import { updateEmail, deleteEmail, createEmail } from '../graphql/mutations';
-import { onCreateEmail, onUpdateEmail, onDeleteEmail } from '../graphql/subscriptions';
+import { generateClient } from 'aws-amplify/data';
 
 const EmailContext = createContext();
 const client = generateClient();
@@ -17,57 +14,56 @@ export function EmailProvider({ children }) {
   const [composeDraft, setComposeDraft] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  const buildFilter = useCallback((folder, query) => {
+    const conditions = [];
+
+    if (folder === 'INBOX') {
+      conditions.push({ folder: { eq: 'INBOX' } });
+      conditions.push({ isTrashed: { eq: false } });
+    } else if (folder === 'STARRED') {
+      conditions.push({ isStarred: { eq: true } });
+      conditions.push({ isTrashed: { eq: false } });
+    } else if (folder === 'SENT') {
+      conditions.push({ folder: { eq: 'SENT' } });
+    } else if (folder === 'DRAFTS') {
+      conditions.push({ isDraft: { eq: true } });
+    } else if (folder === 'TRASH') {
+      conditions.push({ isTrashed: { eq: true } });
+    } else if (folder === 'SPAM') {
+      conditions.push({ folder: { eq: 'SPAM' } });
+    }
+
+    if (query) {
+      conditions.push({
+        or: [
+          { subject: { contains: query } },
+          { bodyText: { contains: query } },
+          { from: { contains: query } },
+        ],
+      });
+    }
+
+    return conditions.length > 0 ? { and: conditions } : undefined;
+  }, []);
+
   const fetchEmails = useCallback(async (folder = activeFolder) => {
     setLoading(true);
     try {
       const filter = buildFilter(folder, searchQuery);
-      const result = await client.graphql({
-        query: listEmails,
-        variables: { filter, limit: 50 },
+      const { data: items, errors } = await client.models.Email.list({
+        filter,
+        limit: 50,
       });
-      setEmails(result.data.listEmails.items.sort(
-        (a, b) => new Date(b.sentAt) - new Date(a.sentAt)
-      ));
+      if (errors) throw errors;
+      setEmails(
+        (items || []).sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt))
+      );
     } catch (err) {
       console.error('fetchEmails error:', err);
     } finally {
       setLoading(false);
     }
-  }, [activeFolder, searchQuery]);
-
-  function buildFilter(folder, query) {
-    const base = {};
-    if (folder === 'INBOX') {
-      base.folder = { eq: 'INBOX' };
-      base.isTrashed = { eq: false };
-    } else if (folder === 'STARRED') {
-      base.isStarred = { eq: true };
-      base.isTrashed = { eq: false };
-    } else if (folder === 'SENT') {
-      base.folder = { eq: 'SENT' };
-    } else if (folder === 'DRAFTS') {
-      base.isDraft = { eq: true };
-    } else if (folder === 'TRASH') {
-      base.isTrashed = { eq: true };
-    } else if (folder === 'SPAM') {
-      base.folder = { eq: 'SPAM' };
-    }
-    if (query) {
-      return {
-        and: [
-          base,
-          {
-            or: [
-              { subject: { contains: query } },
-              { bodyText: { contains: query } },
-              { from: { contains: query } },
-            ],
-          },
-        ],
-      };
-    }
-    return base;
-  }
+  }, [activeFolder, searchQuery, buildFilter]);
 
   useEffect(() => {
     fetchEmails(activeFolder);
@@ -75,24 +71,27 @@ export function EmailProvider({ children }) {
 
   // Real-time subscriptions
   useEffect(() => {
-    const createSub = client.graphql({ query: onCreateEmail }).subscribe({
-      next: ({ data }) => {
-        const newEmail = data.onCreateEmail;
+    const createSub = client.models.Email.onCreate().subscribe({
+      next: ({ data: newEmail }) => {
         setEmails(prev => [newEmail, ...prev]);
       },
+      error: err => console.error('onCreate sub error:', err),
     });
-    const updateSub = client.graphql({ query: onUpdateEmail }).subscribe({
-      next: ({ data }) => {
-        const updated = data.onUpdateEmail;
+
+    const updateSub = client.models.Email.onUpdate().subscribe({
+      next: ({ data: updated }) => {
         setEmails(prev => prev.map(e => e.id === updated.id ? { ...e, ...updated } : e));
       },
+      error: err => console.error('onUpdate sub error:', err),
     });
-    const deleteSub = client.graphql({ query: onDeleteEmail }).subscribe({
-      next: ({ data }) => {
-        const deleted = data.onDeleteEmail;
+
+    const deleteSub = client.models.Email.onDelete().subscribe({
+      next: ({ data: deleted }) => {
         setEmails(prev => prev.filter(e => e.id !== deleted.id));
       },
+      error: err => console.error('onDelete sub error:', err),
     });
+
     return () => {
       createSub.unsubscribe();
       updateSub.unsubscribe();
@@ -101,30 +100,34 @@ export function EmailProvider({ children }) {
   }, []);
 
   const markRead = async (id, isRead = true) => {
-    await client.graphql({ query: updateEmail, variables: { input: { id, isRead } } });
-    setEmails(prev => prev.map(e => e.id === id ? { ...e, isRead } : e));
+    const { errors } = await client.models.Email.update({ id, isRead });
+    if (!errors) setEmails(prev => prev.map(e => e.id === id ? { ...e, isRead } : e));
   };
 
   const toggleStar = async (id, current) => {
     const isStarred = !current;
-    await client.graphql({ query: updateEmail, variables: { input: { id, isStarred } } });
-    setEmails(prev => prev.map(e => e.id === id ? { ...e, isStarred } : e));
+    const { errors } = await client.models.Email.update({ id, isStarred });
+    if (!errors) setEmails(prev => prev.map(e => e.id === id ? { ...e, isStarred } : e));
   };
 
   const trashEmail = async (id) => {
-    await client.graphql({ query: updateEmail, variables: { input: { id, isTrashed: true, folder: 'TRASH' } } });
-    setEmails(prev => prev.filter(e => e.id !== id));
-    if (selectedEmail?.id === id) setSelectedEmail(null);
+    const { errors } = await client.models.Email.update({ id, isTrashed: true, folder: 'TRASH' });
+    if (!errors) {
+      setEmails(prev => prev.filter(e => e.id !== id));
+      if (selectedEmail?.id === id) setSelectedEmail(null);
+    }
   };
 
   const permanentDelete = async (id) => {
-    await client.graphql({ query: deleteEmail, variables: { input: { id } } });
-    setEmails(prev => prev.filter(e => e.id !== id));
-    if (selectedEmail?.id === id) setSelectedEmail(null);
+    const { errors } = await client.models.Email.delete({ id });
+    if (!errors) {
+      setEmails(prev => prev.filter(e => e.id !== id));
+      if (selectedEmail?.id === id) setSelectedEmail(null);
+    }
   };
 
   const sendEmail = async (emailData) => {
-    const input = {
+    const { errors } = await client.models.Email.create({
       ...emailData,
       folder: 'SENT',
       isRead: true,
@@ -133,12 +136,12 @@ export function EmailProvider({ children }) {
       isDraft: false,
       isTrashed: false,
       sentAt: new Date().toISOString(),
-    };
-    await client.graphql({ query: createEmail, variables: { input } });
+    });
+    if (errors) throw errors;
   };
 
   const saveDraft = async (emailData) => {
-    const input = {
+    const { errors } = await client.models.Email.create({
       ...emailData,
       folder: 'DRAFTS',
       isRead: true,
@@ -147,8 +150,8 @@ export function EmailProvider({ children }) {
       isDraft: true,
       isTrashed: false,
       sentAt: new Date().toISOString(),
-    };
-    await client.graphql({ query: createEmail, variables: { input } });
+    });
+    if (errors) throw errors;
   };
 
   const openCompose = (draft = null) => {
