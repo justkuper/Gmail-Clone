@@ -1,0 +1,175 @@
+.kauth-backdrop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-height(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #f6f8fc;
+}
+
+.kauth-card {
+  background: white;
+  border-radius: 8px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 2px 3px rgba(0,0,0,.06), 0 6px 10px 4px rgba(0,0,0,.06);
+}
+
+.kauth-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.kauth-wordmark {
+  font-size: 26px;
+  font-weight: 400;
+  color: #5f6368;
+  letter-spacing: -0.5px;
+  font-family: 'Google Sans', sans-serif;
+}
+
+.kauth-card h2 {
+  font-size: 24px;
+  font-weight: 400;
+  color: #202124;
+  margin-bottom: 6px;
+}
+
+.kauth-sub {
+  font-size: 14px;
+  color: #5f6368;
+  margin-bottom: 24px;
+}
+
+.kauth-error {
+  background: #fce8e6;
+  color: #c5221f;
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.kauth-success {
+  background: #e6f4ea;
+  color: #137333;
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.kauth-input {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #202124;
+  outline: none;
+  margin-bottom: 16px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.kauth-input:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 2px rgba(26,115,232,.2);
+}
+
+/* Username row */
+.kauth-username-row {
+  display: flex;
+  align-items: center;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  transition: border-color 0.2s;
+}
+
+.kauth-username-row:focus-within {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 2px rgba(26,115,232,.2);
+}
+
+.username-input {
+  border: none !important;
+  box-shadow: none !important;
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.kauth-domain {
+  padding: 0 14px 0 0;
+  font-size: 16px;
+  color: #5f6368;
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.kauth-avail {
+  font-size: 13px;
+  margin-bottom: 12px;
+  padding: 0 2px;
+}
+
+.kauth-avail--available { color: #137333; }
+.kauth-avail--taken     { color: #c5221f; }
+.kauth-avail--invalid   { color: #c5221f; }
+.kauth-avail--checking  { color: #5f6368; }
+
+/* Actions */
+.kauth-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.kauth-link {
+  color: #1a73e8;
+  font-size: 14px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.kauth-link:hover { text-decoration: underline; }
+
+.kauth-btn-primary {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.kauth-btn-primary:hover:not(:disabled) { background: #1557b0; }
+
+.kauth-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading */
+.kauth-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}

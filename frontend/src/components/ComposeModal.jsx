@@ -39,7 +39,7 @@ export default function ComposeModal() {
     setSending(true);
     try {
       await sendEmail({
-        from: 'me@gmailclone.com',
+        from: 'me@kmail.com',
         to: parseEmails(form.to),
         cc: parseEmails(form.cc),
         bcc: parseEmails(form.bcc),
@@ -58,7 +58,7 @@ export default function ComposeModal() {
 
   const handleDraft = async () => {
     await saveDraft({
-      from: 'me@gmailclone.com',
+      from: 'me@kmail.com',
       to: parseEmails(form.to),
       cc: parseEmails(form.cc),
       bcc: parseEmails(form.bcc),

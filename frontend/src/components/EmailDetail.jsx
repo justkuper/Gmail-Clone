@@ -11,7 +11,7 @@ export default function EmailDetail({ email, onBack }) {
     openCompose({
       to: [email.from],
       subject: email.subject.startsWith('Re:') ? email.subject : `Re: ${email.subject}`,
-      body: `<br/><br/><div class="gmail_quote">On ${format(new Date(email.sentAt), 'PPpp')}, ${email.from} wrote:<br/><blockquote>${email.body}</blockquote></div>`,
+      body: `<br/><br/><div class="kmail_quote">On ${format(new Date(email.sentAt), 'PPpp')}, ${email.from} wrote:<br/><blockquote>${email.body}</blockquote></div>`,
     });
   };
 

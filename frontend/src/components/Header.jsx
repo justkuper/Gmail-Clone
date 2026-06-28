@@ -28,13 +28,12 @@ export default function Header() {
           <span className="material-icons">menu</span>
         </button>
         <div className="logo">
-          <svg width="36" height="26" viewBox="0 0 36 26">
-            <path d="M4 4h28l-14 9L4 4z" fill="#EA4335"/>
-            <path d="M4 4v18h28V4L18 13 4 4z" fill="#FBBC05"/>
-            <path d="M4 4v18h11V11L4 4z" fill="#34A853"/>
-            <path d="M32 4v18H21V11l11-7z" fill="#4285F4"/>
+          <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" rx="12" fill="#1a73e8"/>
+            <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle"
+              fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="32" fill="white">K</text>
           </svg>
-          <span className="logo-text">Gmail</span>
+          <span className="logo-text">Kmail</span>
         </div>
       </div>
 
@@ -79,13 +78,13 @@ export default function Header() {
             onClick={() => setShowUserMenu(!showUserMenu)}
             title="Account"
           >
-            <div className="avatar">G</div>
+            <div className="avatar">K</div>
           </button>
           {showUserMenu && (
             <div className="user-menu">
               <div className="user-menu-header">
-                <div className="avatar large">G</div>
-                <p className="user-email">Gmail Clone User</p>
+                <div className="avatar large">K</div>
+                <p className="user-email">Kmail User</p>
               </div>
               <hr />
               <button className="user-menu-item" onClick={handleSignOut}>

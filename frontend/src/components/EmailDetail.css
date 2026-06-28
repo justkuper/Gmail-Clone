@@ -97,7 +97,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--gmail-blue);
+  background: var(--kmail-blue);
   color: white;
   display: flex;
   align-items: center;
@@ -199,7 +199,7 @@
 }
 
 .message-body a {
-  color: var(--gmail-blue);
+  color: var(--kmail-blue);
 }
 
 /* Attachments */

@@ -57,8 +57,8 @@
 }
 
 .checkbox.checked {
-  background: var(--gmail-blue);
-  border-color: var(--gmail-blue);
+  background: var(--kmail-blue);
+  border-color: var(--kmail-blue);
 }
 
 /* Inbox tabs */
@@ -86,8 +86,8 @@
 }
 
 .tab.active {
-  color: var(--gmail-blue);
-  border-bottom-color: var(--gmail-blue);
+  color: var(--kmail-blue);
+  border-bottom-color: var(--kmail-blue);
 }
 
 .tab .material-icons {
@@ -268,7 +268,7 @@
   width: 32px;
   height: 32px;
   border: 3px solid var(--border-color);
-  border-top-color: var(--gmail-blue);
+  border-top-color: var(--kmail-blue);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
