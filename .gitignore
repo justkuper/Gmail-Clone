@@ -21,7 +21,7 @@ backend/dist/
 
 # Amplify Gen 2 — generated at build time, do not commit root-level outputs
 amplify_outputs.json
-# (frontend/src/amplify_outputs.json IS committed as a placeholder)
+!frontend/src/amplify_outputs.json
 
 # Env
 .env

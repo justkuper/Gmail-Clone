@@ -1,11 +1,4 @@
 version: 1
-backend:
-  phases:
-    build:
-      commands:
-        - npm install
-        - npm install @parcel/watcher-linux-x64-glibc --no-save
-        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
     preBuild:
@@ -13,7 +6,6 @@ frontend:
         - cd frontend && npm install
     build:
       commands:
-        - cp amplify_outputs.json frontend/src/amplify_outputs.json
         - cd frontend && npm run build
   artifacts:
     baseDirectory: frontend/build
@@ -21,5 +13,4 @@ frontend:
       - '**/*'
   cache:
     paths:
-      - .npm/**/*
       - frontend/node_modules/**/*
