@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  signIn, signOut, signUp, confirmSignUp,
-  getCurrentUser, resendSignUpCode
-} from 'aws-amplify/auth';
+import { signIn, signOut, signUp, getCurrentUser } from 'aws-amplify/auth';
 import './KmailAuth.css';
 
 const DOMAIN = '@kmail.com';
@@ -204,7 +201,9 @@ function SetPassword({ username, onNext, onBack }) {
         password,
         options: { userAttributes: { email: fullEmail } }
       });
-      onNext(password);
+      // Lambda auto-confirms the user — sign in immediately
+      await signIn({ username: fullEmail, password });
+      onNext();
     } catch (err) {
       setError(err.message || 'Could not create account');
     } finally {
@@ -234,69 +233,7 @@ function SetPassword({ username, onNext, onBack }) {
         <div className="kauth-actions">
           <button type="button" className="kauth-link" onClick={onBack}>Back</button>
           <button className="kauth-btn-primary" type="submit" disabled={loading || !isValid}>
-            {loading ? 'Creating…' : 'Create account'}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-}
-
-// ─── Register: step 3 — verify code ──────────────────────────────────────────
-function VerifyCode({ username, password, onSuccess, onBack }) {
-  const [code, setCode] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [resent, setResent] = useState(false);
-  const fullEmail = `${username}${DOMAIN}`;
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await confirmSignUp({ username: fullEmail, confirmationCode: code.trim() });
-      await signIn({ username: fullEmail, password });
-      onSuccess();
-    } catch (err) {
-      setError(err.message || 'Invalid code');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleResend() {
-    try {
-      await resendSignUpCode({ username: fullEmail });
-      setResent(true);
-    } catch (err) {
-      setError(err.message);
-    }
-  }
-
-  return (
-    <div className="kauth-card">
-      <KmailLogo />
-      <h2>Verify your email</h2>
-      <p className="kauth-sub">Enter the code sent to <strong>{fullEmail}</strong></p>
-      {error && <div className="kauth-error">{error}</div>}
-      {resent && <div className="kauth-success">Code resent!</div>}
-      <form onSubmit={handleSubmit}>
-        <input
-          className="kauth-input"
-          type="text"
-          placeholder="Verification code"
-          value={code}
-          onChange={e => setCode(e.target.value)}
-          required
-          autoFocus
-        />
-        <div className="kauth-actions">
-          <button type="button" className="kauth-link" onClick={handleResend}>
-            Resend code
-          </button>
-          <button className="kauth-btn-primary" type="submit" disabled={loading}>
-            {loading ? 'Verifying…' : 'Verify'}
+            {loading ? 'Creating account…' : 'Create account'}
           </button>
         </div>
       </form>
@@ -308,9 +245,8 @@ function VerifyCode({ username, password, onSuccess, onBack }) {
 export default function KmailAuth({ children }) {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
-  const [view, setView] = useState('signin'); // 'signin' | 'choose' | 'password' | 'verify'
+  const [view, setView] = useState('signin'); // 'signin' | 'choose' | 'password'
   const [regUsername, setRegUsername] = useState('');
-  const [regPassword, setRegPassword] = useState('');
 
   useEffect(() => {
     getCurrentUser()
@@ -355,16 +291,8 @@ export default function KmailAuth({ children }) {
       {view === 'password' && (
         <SetPassword
           username={regUsername}
-          onNext={p => { setRegPassword(p); setView('verify'); }}
+          onNext={handleAuthSuccess}
           onBack={() => setView('choose')}
-        />
-      )}
-      {view === 'verify' && (
-        <VerifyCode
-          username={regUsername}
-          password={regPassword}
-          onSuccess={handleAuthSuccess}
-          onBack={() => setView('password')}
         />
       )}
     </div>
