@@ -155,6 +155,36 @@ function ChooseUsername({ onNext }) {
   );
 }
 
+// Password must match Cognito's default policy
+function validatePassword(pw) {
+  if (pw.length < 8)           return 'At least 8 characters required';
+  if (!/[A-Z]/.test(pw))       return 'Must include an uppercase letter';
+  if (!/[a-z]/.test(pw))       return 'Must include a lowercase letter';
+  if (!/[0-9]/.test(pw))       return 'Must include a number';
+  if (!/[^A-Za-z0-9]/.test(pw)) return 'Must include a special character (e.g. !@#$)';
+  return null;
+}
+
+function PasswordStrength({ password }) {
+  const checks = [
+    { label: '8+ characters',       ok: password.length >= 8 },
+    { label: 'Uppercase letter',     ok: /[A-Z]/.test(password) },
+    { label: 'Lowercase letter',     ok: /[a-z]/.test(password) },
+    { label: 'Number',               ok: /[0-9]/.test(password) },
+    { label: 'Special character',    ok: /[^A-Za-z0-9]/.test(password) },
+  ];
+  if (!password) return null;
+  return (
+    <ul className="kauth-pw-rules">
+      {checks.map(c => (
+        <li key={c.label} className={c.ok ? 'pw-ok' : 'pw-bad'}>
+          {c.ok ? '✓' : '✗'} {c.label}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 // ─── Register: step 2 — set password ─────────────────────────────────────────
 function SetPassword({ username, onNext, onBack }) {
   const [password, setPassword] = useState('');
@@ -164,6 +194,8 @@ function SetPassword({ username, onNext, onBack }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    const validationError = validatePassword(password);
+    if (validationError) { setError(validationError); return; }
     setError('');
     setLoading(true);
     try {
@@ -180,6 +212,8 @@ function SetPassword({ username, onNext, onBack }) {
     }
   }
 
+  const isValid = validatePassword(password) === null;
+
   return (
     <div className="kauth-card">
       <KmailLogo />
@@ -190,16 +224,16 @@ function SetPassword({ username, onNext, onBack }) {
         <input
           className="kauth-input"
           type="password"
-          placeholder="Password (min 8 characters)"
+          placeholder="Password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          minLength={8}
           required
           autoFocus
         />
+        <PasswordStrength password={password} />
         <div className="kauth-actions">
           <button type="button" className="kauth-link" onClick={onBack}>Back</button>
-          <button className="kauth-btn-primary" type="submit" disabled={loading}>
+          <button className="kauth-btn-primary" type="submit" disabled={loading || !isValid}>
             {loading ? 'Creating…' : 'Create account'}
           </button>
         </div>

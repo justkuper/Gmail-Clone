@@ -2,7 +2,26 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { generateClient } from 'aws-amplify/data';
 
 const EmailContext = createContext();
-const client = generateClient();
+
+// generateClient() is safe to call lazily — we wrap in a getter so it only
+// runs after Amplify.configure() has been called (in index.js).
+let _client = null;
+function getClient() {
+  if (!_client) {
+    try { _client = generateClient(); } catch { /* AppSync not configured yet */ }
+  }
+  return _client;
+}
+
+// Returns true only when AppSync data API is actually configured
+function hasDataAPI() {
+  try {
+    const c = getClient();
+    return !!(c && c.models && c.models.Email);
+  } catch {
+    return false;
+  }
+}
 
 export function EmailProvider({ children }) {
   const [emails, setEmails] = useState([]);
@@ -47,10 +66,11 @@ export function EmailProvider({ children }) {
   }, []);
 
   const fetchEmails = useCallback(async (folder = activeFolder) => {
+    if (!hasDataAPI()) return; // AppSync not yet configured
     setLoading(true);
     try {
       const filter = buildFilter(folder, searchQuery);
-      const { data: items, errors } = await client.models.Email.list({
+      const { data: items, errors } = await getClient().models.Email.list({
         filter,
         limit: 50,
       });
@@ -69,23 +89,26 @@ export function EmailProvider({ children }) {
     fetchEmails(activeFolder);
   }, [activeFolder, searchQuery]);
 
-  // Real-time subscriptions
+  // Real-time subscriptions — only active when AppSync is configured
   useEffect(() => {
-    const createSub = client.models.Email.onCreate().subscribe({
+    if (!hasDataAPI()) return;
+    const c = getClient();
+
+    const createSub = c.models.Email.onCreate().subscribe({
       next: ({ data: newEmail }) => {
         setEmails(prev => [newEmail, ...prev]);
       },
       error: err => console.error('onCreate sub error:', err),
     });
 
-    const updateSub = client.models.Email.onUpdate().subscribe({
+    const updateSub = c.models.Email.onUpdate().subscribe({
       next: ({ data: updated }) => {
         setEmails(prev => prev.map(e => e.id === updated.id ? { ...e, ...updated } : e));
       },
       error: err => console.error('onUpdate sub error:', err),
     });
 
-    const deleteSub = client.models.Email.onDelete().subscribe({
+    const deleteSub = c.models.Email.onDelete().subscribe({
       next: ({ data: deleted }) => {
         setEmails(prev => prev.filter(e => e.id !== deleted.id));
       },
@@ -100,18 +123,21 @@ export function EmailProvider({ children }) {
   }, []);
 
   const markRead = async (id, isRead = true) => {
-    const { errors } = await client.models.Email.update({ id, isRead });
+    if (!hasDataAPI()) return;
+    const { errors } = await getClient().models.Email.update({ id, isRead });
     if (!errors) setEmails(prev => prev.map(e => e.id === id ? { ...e, isRead } : e));
   };
 
   const toggleStar = async (id, current) => {
+    if (!hasDataAPI()) return;
     const isStarred = !current;
-    const { errors } = await client.models.Email.update({ id, isStarred });
+    const { errors } = await getClient().models.Email.update({ id, isStarred });
     if (!errors) setEmails(prev => prev.map(e => e.id === id ? { ...e, isStarred } : e));
   };
 
   const trashEmail = async (id) => {
-    const { errors } = await client.models.Email.update({ id, isTrashed: true, folder: 'TRASH' });
+    if (!hasDataAPI()) return;
+    const { errors } = await getClient().models.Email.update({ id, isTrashed: true, folder: 'TRASH' });
     if (!errors) {
       setEmails(prev => prev.filter(e => e.id !== id));
       if (selectedEmail?.id === id) setSelectedEmail(null);
@@ -119,7 +145,8 @@ export function EmailProvider({ children }) {
   };
 
   const permanentDelete = async (id) => {
-    const { errors } = await client.models.Email.delete({ id });
+    if (!hasDataAPI()) return;
+    const { errors } = await getClient().models.Email.delete({ id });
     if (!errors) {
       setEmails(prev => prev.filter(e => e.id !== id));
       if (selectedEmail?.id === id) setSelectedEmail(null);
@@ -127,7 +154,8 @@ export function EmailProvider({ children }) {
   };
 
   const sendEmail = async (emailData) => {
-    const { errors } = await client.models.Email.create({
+    if (!hasDataAPI()) throw new Error('Email service not configured yet');
+    const { errors } = await getClient().models.Email.create({
       ...emailData,
       folder: 'SENT',
       isRead: true,
@@ -141,7 +169,8 @@ export function EmailProvider({ children }) {
   };
 
   const saveDraft = async (emailData) => {
-    const { errors } = await client.models.Email.create({
+    if (!hasDataAPI()) throw new Error('Email service not configured yet');
+    const { errors } = await getClient().models.Email.create({
       ...emailData,
       folder: 'DRAFTS',
       isRead: true,
